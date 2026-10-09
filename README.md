@@ -4,9 +4,15 @@ Plugin do Hyprland que desenha um calendário mensal no desktop, **entre o
 wallpaper e as janelas**, no estilo minimalista da imagem de referência
 (título grande, ano pequeno à direita, linha fina, dias da semana e números).
 
+![[examples.png]]
+
 Tudo é configurável: fontes, tamanhos e cores de cada elemento (título, ano,
 dias da semana, números), idioma, nomes curtos/longos, primeiro dia da semana
 e posição na tela.
+
+![[preview.png]]
+
+
 
 ## Testar sem instalar (sem Hyprland)
 
