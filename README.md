@@ -54,7 +54,7 @@ distros, `hyprland-devel` ou `make installheaders` do código-fonte).
 **Com o hyprpm:**
 
 ```bash
-hyprpm add https://github.com/devalvez/hypr-calendar   # depois de publicar o repo
+hyprpm add https://github.com/devalvez/hypr-calendar
 hyprpm enable hypr-calendar
 ```
 
