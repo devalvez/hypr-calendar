@@ -4,13 +4,13 @@ Plugin do Hyprland que desenha um calendário mensal no desktop, **entre o
 wallpaper e as janelas**, no estilo minimalista da imagem de referência
 (título grande, ano pequeno à direita, linha fina, dias da semana e números).
 
-![[examples.png]]
+![preview.png](https://raw.githubusercontent.com/devalvez/hypr-calendar/refs/heads/main/preview.png)
 
 Tudo é configurável: fontes, tamanhos e cores de cada elemento (título, ano,
 dias da semana, números), idioma, nomes curtos/longos, primeiro dia da semana
 e posição na tela.
 
-![[preview.png]]
+<img src="https://github.com/devalvez/hypr-calendar/blob/main/examples.png" width="500px" alt="examples.png" />
 
 
 
@@ -106,6 +106,55 @@ Cores aceitam a sintaxe do Hyprland: `rgb(112233)`, `rgba(112233ee)`,
 | `bg_color` | `#ffffff` | Cor do plano de fundo |
 | `bg_opacity` | `0.93` | Transparência do fundo: `0.0` (invisível) a `1.0` (opaco). Multiplica o alpha da própria cor, se ela tiver (`rgba(...)`) |
 | `line_color`, `line_width` | `#d9d9d9`, `1` | Linha sob o título (`line_width = 0` remove) |
+
+
+### Example de Configuração (hyprland.lua)
+```lua
+hl.on("config.reloaded", function()
+	hl.config({
+        plugin = {
+            calendar = {
+                enabled = true,
+                monitor = "",
+                anchor = "bottom_right",
+                offset_x = 40,
+                offset_y = 40,
+                width = 300,
+                padding = 26,
+                row_height = 0,
+                rounding = 0,
+                language = "en",
+                week_start = "sunday",
+                weekday_format = "short",
+                title_font = "MagmaWave Caps",
+                title_size = 56,
+                title_color = "#ffffff",
+                title_case = "lower",
+                year_font = "Sans",
+                year_size = 15,
+                year_color = "#CCCCCC",
+                year_offset_y = 0,
+                weekday_font = "Comfortaa",
+                weekday_size = 12,
+                weekday_color = "#CCCCCC",
+                weekday_case = "upper",
+                day_font = "Comfortaa",
+                day_size = 15,
+                day_color = "#666666",
+                today_style = "badge",
+                today_badge_shape = "square",
+                today_badge_color = "#DDDDDD",
+                today_badge_text_color = "#18181b",
+                today_badge_size = 0,
+                bg_color = "#ffffff",
+                bg_opacity = 0,
+                line_color = "#d9d9d9",
+                line_width = 1
+            }
+	    },
+    })
+end)
+```
 
 ### Fontes
 
