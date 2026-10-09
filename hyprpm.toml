@@ -1,0 +1,11 @@
+[repository]
+name = "hypr-calendar"
+authors = ["hypr-calendar"]
+
+[hypr-calendar]
+description = "Calendário mensal no desktop, por cima do wallpaper"
+authors = ["hypr-calendar"]
+output = "build/hypr-calendar.so"
+build = [
+    "make plugin",
+]
