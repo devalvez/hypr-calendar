@@ -76,7 +76,7 @@ hl.config({
 Salvar o arquivo recarrega a config; as opções do calendário valem na hora.
 
 **Alternativa com o hyprpm** (depois de publicar o repositório):
-`hyprpm add https://github.com/SEU_USUARIO/hypr-calendar` e
+`hyprpm add https://github.com/devalvez/hypr-calendar` e
 `hyprpm enable hypr-calendar`. Se você ativou `ecosystem.enforce_permissions`,
 libere o hyprpm com `hl.permission("/usr/(bin|local/bin)/hyprpm", "plugin", "allow")`.
 
