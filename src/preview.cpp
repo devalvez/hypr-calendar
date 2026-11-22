@@ -57,7 +57,7 @@ static bool loadConfigFile(Config& cfg, const std::string& path) {
     while (std::getline(f, line)) {
         n++;
         line = trim(line);
-        if (line.empty() || line[0] == '#' || line.rfind("//", 0) == 0)
+        if (line.empty() || line[0] == '#' || line.rfind("//", 0) == 0 || line.rfind("--", 0) == 0)
             continue;
         // permite colar o bloco `plugin { calendar { ... } }` do hyprland.conf
         if (line == "}" || line.back() == '{')
@@ -90,16 +90,16 @@ static bool loadConfigFile(Config& cfg, const std::string& path) {
 }
 
 int main(int argc, char** argv) {
-    Config                                      cfg;
-    std::string                                 cfgFile, out = "calendar.png", wallpaper;
+    Config                                           cfg;
+    std::string                                      cfgFile, out = "calendar.png", wallpaper;
     std::vector<std::pair<std::string, std::string>> sets;
-    double                                      scale = 1.0;
-    int                                         screenW = 0, screenH = 0;
-    int                                         year, month, day;
+    double                                           scale = 1.0;
+    int                                              screenW = 0, screenH = 0;
+    int                                              year, month, day;
     today(year, month, day);
 
     for (int i = 1; i < argc; i++) {
-        const std::string a = argv[i];
+        const std::string a    = argv[i];
         auto              next = [&]() -> const char* {
             if (i + 1 >= argc) {
                 std::fprintf(stderr, "erro: %s precisa de um valor\n", a.c_str());
@@ -163,8 +163,8 @@ int main(int argc, char** argv) {
 
     if (screenW > 0) {
         const int pw = (int)(screenW * scale), ph = (int)(screenH * scale);
-        result          = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, pw, ph);
-        cairo_t* cr     = cairo_create(result);
+        result      = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, pw, ph);
+        cairo_t* cr = cairo_create(result);
 
         // "wallpaper"
         bool drewWall = false;
