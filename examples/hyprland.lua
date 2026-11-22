@@ -1,4 +1,6 @@
 -- Trecho para o seu hyprland.lua (Hyprland 0.55+ com configuração em Lua)
+--
+-- Em Lua as cores são STRINGS: "rgb(111111)", "rgba(111111ee)" ou "0xAARRGGBB".
 
 hl.plugin.load("/caminho/para/hypr-calendar.so")
 -- (se instalou com hyprpm, ele carrega sozinho: `hyprpm enable hypr-calendar`)
