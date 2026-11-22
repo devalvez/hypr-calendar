@@ -4,28 +4,95 @@ Plugin do Hyprland que desenha um calendário mensal no desktop, **entre o
 wallpaper e as janelas**, no estilo minimalista da imagem de referência
 (título grande, ano pequeno à direita, linha fina, dias da semana e números).
 
-![preview.png](https://raw.githubusercontent.com/devalvez/hypr-calendar/refs/heads/main/preview.png)
-
 Tudo é configurável: fontes, tamanhos e cores de cada elemento (título, ano,
-dias da semana, números), idioma, nomes curtos/longos, primeiro dia da semana
-e posição na tela.
+dias da semana, números), idioma, nomes curtos/longos, primeiro dia da semana,
+badge no dia atual, cor e transparência do fundo e posição na tela.
 
-<img src="https://github.com/devalvez/hypr-calendar/blob/main/examples.png" width="500px" alt="examples.png" />
+> **Versão suportada: Hyprland v0.57.x** (compilado e conferido contra o commit
+> `6d6e935c3`, `v0.57.0-164`). A API de plugins muda entre versões, então para
+> outro Hyprland pode ser preciso ajustar o `src/main.cpp` (os trechos
+> dependentes da API estão marcados com `[API]`). A configuração é em **Lua**:
+> o suporte ao `hyprland.conf` clássico foi removido do Hyprland nessa versão.
 
+## Como instalar
 
+Plugins do Hyprland são compilados contra **exatamente a versão** do Hyprland
+que está rodando. Faça o build na própria máquina, com os headers instalados.
+
+### 1. Dependências
+
+- Compilador no mesmo nível do usado para o Hyprland 0.57: **GCC 14+** (ou
+  Clang recente). `g++ --version` mostra o seu.
+- `make`, `pkg-config`, `pango` e `cairo` (com headers).
+- Headers do Hyprland: o pacote do Hyprland da distro costuma trazer
+  (`hyprland` no Arch). Em outras, procure `hyprland-devel`; se compilou o
+  Hyprland do código-fonte, rode `sudo make installheaders` nele.
+
+Confira: `pkg-config --modversion hyprland` deve responder sem erro.
+
+```bash
+#   Arch:    sudo pacman -S base-devel pango cairo
+#   Fedora:  sudo dnf install gcc-c++ make pkgconf pango-devel cairo-devel
+#   Debian:  sudo apt install g++ make pkg-config libpango1.0-dev libcairo2-dev
+```
+
+### 2. Compilar e instalar
+
+```bash
+tar xzf hypr-calendar.tar.gz && cd hypr-calendar
+make plugin            # gera build/hypr-calendar.so
+make install           # copia para ~/.local/share/hypr-calendar/
+```
+
+Se o seu `g++` padrão for antigo: `make plugin CXX=g++-14`.
+
+### 3. Carregar
+
+Teste primeiro, sem mexer na config:
+
+```bash
+hyprctl plugin load ~/.local/share/hypr-calendar/hypr-calendar.so
+hyprctl plugin list
+hyprctl plugin unload ~/.local/share/hypr-calendar/hypr-calendar.so
+```
+
+Para carregar sempre, no seu `hyprland.lua` (modelo completo em
+`examples/hyprland.lua`):
+
+```lua
+hl.plugin.load(os.getenv("HOME") .. "/.local/share/hypr-calendar/hypr-calendar.so")
+
+hl.config({
+    plugin = {
+        calendar = {
+            anchor   = "top_right",
+            offset_x = 60,
+            offset_y = 60,
+        },
+    },
+})
+```
+
+Salvar o arquivo recarrega a config; as opções do calendário valem na hora.
+
+**Alternativa com o hyprpm** (depois de publicar o repositório):
+`hyprpm add https://github.com/SEU_USUARIO/hypr-calendar` e
+`hyprpm enable hypr-calendar`. Se você ativou `ecosystem.enforce_permissions`,
+libere o hyprpm com `hl.permission("/usr/(bin|local/bin)/hyprpm", "plugin", "allow")`.
+
+### Atualizou o Hyprland? Recompile
+
+O plugin se recusa a carregar se foi compilado para outra versão (você verá a
+notificação "versão incompatível"). Depois de atualizar o Hyprland:
+`make clean && make plugin && make install`.
 
 ## Testar sem instalar (sem Hyprland)
 
 O desenho fica num núcleo separado (Cairo + Pango). O `calendar-preview` usa
 exatamente o mesmo código do plugin e gera um PNG, então o que você vê aqui é
-o que o plugin desenha.
+o que o plugin desenha. Só precisa de `g++`, `make` e `pango`/`cairo`.
 
 ```bash
-# dependências: g++, pkg-config e as libs de desenvolvimento do pango/cairo
-#   Arch:    sudo pacman -S pango cairo
-#   Debian:  sudo apt install g++ pkg-config libpango1.0-dev libcairo2-dev
-#   Fedora:  sudo dnf install gcc-c++ pkgconf pango-devel cairo-devel
-
 make test                      # gera build/exemplo.png (agosto de 2026)
 ```
 
@@ -43,43 +110,20 @@ build/calendar-preview -c examples/preview.conf \
 build/calendar-preview -c examples/preview.conf --screen 1920x1080 \
     --wallpaper ~/Imagens/wall.png --set anchor=bottom_left -o tela.png
 
-# outro mês, em tela HiDPI
-build/calendar-preview -c examples/preview.conf --date 2026-12-25 --scale 2 -o natal.png
+# badge no dia atual, outro mês, tela HiDPI
+build/calendar-preview -c examples/preview.conf --date 2026-12-25 --scale 2 \
+    --set today_style=badge --set today_badge_color='#e63946' -o natal.png
 ```
 
 As chaves do arquivo são as mesmas do plugin (`plugin:calendar:<chave>`).
-Você pode até colar o bloco `plugin { calendar { ... } }` do `hyprland.conf`
-no arquivo do preview.
-
-## Instalar o plugin
-
-Plugins do Hyprland são compilados contra **a mesma versão** do Hyprland que
-está rodando. Precisa dos headers (`hyprland` no Arch já traz; em outras
-distros, `hyprland-devel` ou `make installheaders` do código-fonte).
-
-**Com o hyprpm:**
-
-```bash
-hyprpm add https://github.com/devalvez/hypr-calendar
-hyprpm enable hypr-calendar
-```
-
-**Manual:**
-
-```bash
-make plugin                      # gera build/hypr-calendar.so
-# (ou: cmake -B build && cmake --build build)
-hyprctl plugin load $PWD/build/hypr-calendar.so
-```
-
-Para carregar sempre, veja `examples/hyprland.lua` (Hyprland com config em Lua,
-`hl.plugin.load(...)`) ou `examples/hyprland.conf` (sintaxe clássica,
-`plugin = ...`).
+Comentários começam com `# ` (um `#` seguido de espaço) ou ficam no fim da linha;
+`#RRGGBB` continua sendo cor.
 
 ## Opções (`plugin:calendar:<nome>`)
 
-Cores aceitam a sintaxe do Hyprland: `rgb(112233)`, `rgba(112233ee)`,
-`0xAARRGGBB`. Tamanhos são em px lógicos.
+Em Lua use tabelas aninhadas (`plugin = { calendar = { ... } }`) e **cores como
+strings**: `"rgb(112233)"`, `"rgba(112233ee)"` ou `"0xAARRGGBB"`. No arquivo do
+preview também vale `#RRGGBB`. Tamanhos são em px lógicos.
 
 | Opção | Padrão | Descrição |
 |---|---|---|
@@ -107,55 +151,6 @@ Cores aceitam a sintaxe do Hyprland: `rgb(112233)`, `rgba(112233ee)`,
 | `bg_opacity` | `0.93` | Transparência do fundo: `0.0` (invisível) a `1.0` (opaco). Multiplica o alpha da própria cor, se ela tiver (`rgba(...)`) |
 | `line_color`, `line_width` | `#d9d9d9`, `1` | Linha sob o título (`line_width = 0` remove) |
 
-
-### Example de Configuração (hyprland.lua)
-```lua
-hl.on("config.reloaded", function()
-	hl.config({
-        plugin = {
-            calendar = {
-                enabled = true,
-                monitor = "",
-                anchor = "bottom_right",
-                offset_x = 40,
-                offset_y = 40,
-                width = 300,
-                padding = 26,
-                row_height = 0,
-                rounding = 0,
-                language = "en",
-                week_start = "sunday",
-                weekday_format = "short",
-                title_font = "MagmaWave Caps",
-                title_size = 56,
-                title_color = "#ffffff",
-                title_case = "lower",
-                year_font = "Sans",
-                year_size = 15,
-                year_color = "#CCCCCC",
-                year_offset_y = 0,
-                weekday_font = "Comfortaa",
-                weekday_size = 12,
-                weekday_color = "#CCCCCC",
-                weekday_case = "upper",
-                day_font = "Comfortaa",
-                day_size = 15,
-                day_color = "#666666",
-                today_style = "badge",
-                today_badge_shape = "square",
-                today_badge_color = "#DDDDDD",
-                today_badge_text_color = "#18181b",
-                today_badge_size = 0,
-                bg_color = "#ffffff",
-                bg_opacity = 0,
-                line_color = "#d9d9d9",
-                line_width = 1
-            }
-	    },
-    })
-end)
-```
-
 ### Fontes
 
 As opções `*_font` aceitam qualquer descrição do Pango: `Allura`,
@@ -181,9 +176,9 @@ leitura confortável.
 
 ## Limitações conhecidas
 
-- A transparência afeta só o fundo; o texto e o badge mantêm a própria cor/alpha.
 - O calendário é só visual: não captura cliques.
+- A transparência afeta só o fundo; o texto e o badge mantêm a própria cor/alpha.
 - Idiomas embutidos: en, pt, es, fr, de, it. Outros caem para inglês.
-- A API de plugins do Hyprland muda entre versões. `src/main.cpp` foi escrito
-  contra o 0.56; trechos dependentes da API estão marcados com `[API]`.
 - Não reserva espaço de barras (waybar etc.): ajuste `offset_y`/`offset_x`.
+- O calendário é desenhado logo acima do wallpaper, então fica **sob** as
+  barras e as janelas (o que é o objetivo, mas uma janela maximizada o cobre).

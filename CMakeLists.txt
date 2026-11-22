@@ -2,9 +2,11 @@ cmake_minimum_required(VERSION 3.27)
 
 project(hypr-calendar
     DESCRIPTION "Calendário mensal no desktop para o Hyprland"
-    VERSION 1.0
+    VERSION 1.1
 )
 
+# Hyprland 0.57 é compilado com C++26; os headers de plugin compilam em C++23
+# (é o que o hyprland-plugins oficial usa). Troque se o seu compilador pedir.
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -35,6 +37,7 @@ pkg_check_modules(hypr_deps IMPORTED_TARGET
 if(hypr_deps_FOUND)
     add_library(hypr-calendar SHARED src/main.cpp)
     set_target_properties(hypr-calendar PROPERTIES PREFIX "")
+    target_compile_options(hypr-calendar PRIVATE --no-gnu-unique)
     target_link_libraries(hypr-calendar PRIVATE hypr-calendar-core rt PkgConfig::hypr_deps)
     install(TARGETS hypr-calendar LIBRARY DESTINATION lib)
 else()

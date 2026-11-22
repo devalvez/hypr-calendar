@@ -7,16 +7,15 @@
 //   2. no estágio RENDER_POST_WALLPAPER, converte o calendário numa textura
 //      e a adiciona ao render pass do monitor.
 //
-// Escrito contra a API do Hyprland 0.56 (EventBus, config V2, Render::*).
+// Escrito contra a API do Hyprland 0.57 (EventBus, config V2, Render::*).
 // A API de plugins muda bastante entre versões: se o build quebrar numa
 // versão nova, os pontos a ajustar são os marcados com [API] abaixo.
-
-#define WLR_USE_UNSTABLE
 
 #include <hyprland/src/plugins/PluginAPI.hpp>
 #include <hyprland/src/event/EventBus.hpp>
 #include <hyprland/src/render/Renderer.hpp>
 #include <hyprland/src/render/Texture.hpp>
+#include <hyprland/src/render/pass/TexPassElement.hpp>
 #include <hyprland/src/state/MonitorState.hpp>
 #include <hyprland/src/config/values/types/BoolValue.hpp>
 #include <hyprland/src/config/values/types/IntValue.hpp>
@@ -57,8 +56,8 @@ struct SOpts {
 
 SOpts g_opts;
 
-// [API] addConfigValueV2 + Config::Values::C*Value (0.5x). Em versões antigas
-// era HyprlandAPI::addConfigValue(handle, nome, Hyprlang::INT{...}).
+// [API] addConfigValueV2 + Config::Values::C*Value. Em versões antigas era
+// HyprlandAPI::addConfigValue(handle, nome, Hyprlang::INT{...}).
 template <typename T, typename D>
 SP<T> addOption(const char* name, const char* desc, D def) {
     auto v = makeShared<T>(name, desc, def);
@@ -131,10 +130,10 @@ struct SCacheEntry {
     double               logicalW = 0, logicalH = 0;
 };
 
-hcal::Config                             g_cfg;
-std::string                              g_monitorFilter;
-bool                                     g_enabled = true;
-bool                                     g_dirty   = true;
+hcal::Config                                 g_cfg;
+std::string                                  g_monitorFilter;
+bool                                         g_enabled = true;
+bool                                         g_dirty   = true;
 std::unordered_map<std::string, SCacheEntry> g_cache; // por monitor
 
 hcal::Config readConfig() {
@@ -159,29 +158,29 @@ hcal::Config readConfig() {
     str("today_style", o.todayStyle->value());
     str("today_badge_shape", o.todayBadgeShape->value());
 
-    c.offsetX     = (int)o.offsetX->value();
-    c.offsetY     = (int)o.offsetY->value();
-    c.width       = o.width->value();
-    c.padding     = o.padding->value();
-    c.rowHeight   = o.rowHeight->value();
-    c.rounding    = o.rounding->value();
-    c.titleSize   = o.titleSize->value();
-    c.yearSize    = o.yearSize->value();
-    c.yearOffsetY = o.yearOffsetY->value();
-    c.weekdaySize = o.weekdaySize->value();
-    c.daySize     = o.daySize->value();
-    c.lineWidth   = o.lineWidth->value();
+    c.offsetX        = (int)o.offsetX->value();
+    c.offsetY        = (int)o.offsetY->value();
+    c.width          = o.width->value();
+    c.padding        = o.padding->value();
+    c.rowHeight      = o.rowHeight->value();
+    c.rounding       = o.rounding->value();
+    c.titleSize      = o.titleSize->value();
+    c.yearSize       = o.yearSize->value();
+    c.yearOffsetY    = o.yearOffsetY->value();
+    c.weekdaySize    = o.weekdaySize->value();
+    c.daySize        = o.daySize->value();
+    c.lineWidth      = o.lineWidth->value();
     c.todayBadgeSize = o.todayBadgeSize->value();
-    c.bgOpacity   = o.bgOpacity->value();
+    c.bgOpacity      = o.bgOpacity->value();
 
-    c.titleColor   = (hcal::Color)o.titleColor->value();
-    c.yearColor    = (hcal::Color)o.yearColor->value();
-    c.weekdayColor = (hcal::Color)o.weekdayColor->value();
-    c.dayColor     = (hcal::Color)o.dayColor->value();
+    c.titleColor          = (hcal::Color)o.titleColor->value();
+    c.yearColor           = (hcal::Color)o.yearColor->value();
+    c.weekdayColor        = (hcal::Color)o.weekdayColor->value();
+    c.dayColor            = (hcal::Color)o.dayColor->value();
     c.todayBadgeColor     = (hcal::Color)o.todayBadgeColor->value();
     c.todayBadgeTextColor = (hcal::Color)o.todayBadgeTextColor->value();
-    c.bgColor      = (hcal::Color)o.bgColor->value();
-    c.lineColor    = (hcal::Color)o.lineColor->value();
+    c.bgColor             = (hcal::Color)o.bgColor->value();
+    c.lineColor           = (hcal::Color)o.lineColor->value();
     return c;
 }
 
@@ -310,7 +309,7 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
     HyprlandAPI::reloadConfig();
     damageAllMonitors();
 
-    return {"hypr-calendar", "Calendário mensal no desktop, por cima do wallpaper.", "hypr-calendar", "1.0"};
+    return {"hypr-calendar", "Calendário mensal no desktop, por cima do wallpaper.", "hypr-calendar", "1.1"};
 }
 
 APICALL EXPORT void PLUGIN_EXIT() {

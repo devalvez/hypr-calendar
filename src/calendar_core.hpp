@@ -59,8 +59,8 @@ struct Config {
     Color       dayColor = 0xFF222222;
 
     // ---- destaque do dia atual -----------------------------------------
-    std::string todayStyle          = "none";   // none | badge
-    std::string todayBadgeShape     = "circle"; // circle | rounded | square
+    std::string todayStyle          = "none";     // none | badge
+    std::string todayBadgeShape     = "circle";   // circle | rounded | square
     Color       todayBadgeColor     = 0xFF111111; // cor do badge
     Color       todayBadgeTextColor = 0xFFFFFFFF; // cor do número dentro do badge
     double      todayBadgeSize      = 0;          // lado/diâmetro em px; 0 = automático
